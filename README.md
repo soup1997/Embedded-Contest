@@ -1,4 +1,4 @@
-# Embedded-Contest
+# Embedded-System-Contest
    
 한국공학대학교 전자공학부 임베디드시스템 경진대회
 
