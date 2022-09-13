@@ -75,4 +75,4 @@ roslaunch sensor sensor.launch
      사용 중인 카메라에 맞게 usb_cam/image_raw 로 변경   
      
   2) 그 외에도 알 수 없는 에러가 뜸   
-     아직 해결 못함   
+     아직 해결 못함 --> 금요일 해결 예정
