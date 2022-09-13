@@ -25,7 +25,7 @@ roslaunch sensor sensor.launch
 
 * 모터, 서보모터 동작 범위 확인   
 
-  > 모터 : 150 ~ 255 (편의상 250으로 맞춤)   
+  > 모터 : 150 ~ 250 (255까지 가능하지만 편의상 250으로 맞춤)   
   > 서보모터 : 140(Left) ~ 90(Middle) ~ 40(Right)   
   
    
@@ -50,7 +50,7 @@ roslaunch sensor sensor.launch
    https://keyog.tistory.com/7   
    ```
    cd ~/opencv/opencv-3.4.0/build/
-   build -j
+   make -j
    ```
 * 기존에 설치되어 있던 OpenCV를 제거 후 진행하여 sensor.launch 실행 후 rqt_image_view 확인이 되지는 않음
 
