@@ -59,7 +59,7 @@ roslaunch sensor sensor.launch
 
 * OpenCV 설치 완료 (version 3.4.0)   
 
-* 서보모터 콘덴서 연결 완료   
+* Servo 헌팅현상 방지 위해 330uF의 커패시터를 전원부에 연결 
 
 * Yolo 설치 후 catking_make 실행 시 image_transport, image_common 관련 Error 발생   
   ~~아래 링크에 있는 image_transport 를 직접 다운 받는 건 어떤가 하는 의견.~~   
