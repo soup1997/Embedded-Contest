@@ -54,3 +54,14 @@ roslaunch sensor sensor.launch
    ```
 * 기존에 설치되어 있던 OpenCV를 제거 후 진행하여 sensor.launch 실행 후 rqt_image_view 확인이 되지는 않음
 
+
+**(2022-09-13)**
+
+* OpenCV 설치 완료 (version 3.4.0)   
+
+* 서보모터 콘덴서 연결 완료   
+
+* Yolo 설치 후 catking_make 실행 시 image_transport, image_common 관련 Error 발생   
+  아래 링크에 있는 image_transport 를 직접 다운 받는 건 어떤가 하는 의견.   
+  https://github.com/ros-perception/image_common   
+  
