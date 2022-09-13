@@ -62,6 +62,17 @@ roslaunch sensor sensor.launch
 * 서보모터 콘덴서 연결 완료   
 
 * Yolo 설치 후 catking_make 실행 시 image_transport, image_common 관련 Error 발생   
-  아래 링크에 있는 image_transport 를 직접 다운 받는 건 어떤가 하는 의견.   
-  https://github.com/ros-perception/image_common   
+  ~~아래 링크에 있는 image_transport 를 직접 다운 받는 건 어떤가 하는 의견.~~   
+  ~~https://github.com/ros-perception/image_common~~   
   
+  문제가 발생한 image_transport 폴더 삭제 후 catkin_make 실행 후 정상 동작   
+   
+* Yolo 설치 완료 후 아래 명령어로 yolo 실행 시 에러 발생
+  ```
+  roslaunch darknet_ros yolo_v4.launch
+  ```
+  1) /camera/rgb/image_raw 를 읽어오지 못하는 문제   
+     사용 중인 카메라에 맞게 usb_cam/image_raw 로 변경   
+     
+  2) 그 외에도 알 수 없는 에러가 뜸   
+     아직 해결 못함   
