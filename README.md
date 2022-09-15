@@ -84,7 +84,7 @@ roslaunch sensor sensor.launch
   -> yaml, launch 파일에서 yolov4를 모두 yolov3로 수정 후 동작 성공   
   -> But, 속도가 너무 느리며 yolo 자체 용량 차지가 심함   
   -> Yolo 사용 X   
-  
+* 하단 프레임(DC모터, 서보모터, MCU)과 상단 프레임 부착(Jetson Nano, LiDAR, Camera)을 위한 프로파일 부착 완료   
 * LiDAR & Camera Calibration 방법 아래 링크 참고   
   https://github.com/ehong-tl/camera_2d_lidar_calibration   
 
