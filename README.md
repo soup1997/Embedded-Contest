@@ -76,3 +76,15 @@ roslaunch sensor sensor.launch
      
   2) 그 외에도 알 수 없는 에러가 뜸   
      아직 해결 못함   
+
+
+**(2022-09-15)**   
+
+* Jetson Nano 에서 YoloV4 사용 불가능   
+  -> 사용할 yaml, launch 파일 yolov3 로 수정 후 동작 성공   
+  -> but, 속도가 너무 느리며 yolo 자체 용량 차지가 심함   
+  -> 사용 X   
+  
+* LiDAR & Camera Calibration 방법은 아래 링크 참고   
+  https://github.com/ehong-tl/camera_2d_lidar_calibration   
+  
