@@ -132,6 +132,10 @@ roslaunch camera_2d_lidar_calibration reprojection.launch
    Result output format: qx qy qz qw tx ty tz
    ```
    
+   ```
+   -0.434657 0.627096 -0.539703 -0.355731 -0.037701 -0.072766 0.105651
+   ```
+   
    - 캘리브레이션 결과
    ![Screenshot from 2022-09-16 17-54-52](https://user-images.githubusercontent.com/96249554/190599124-ed285672-170b-428b-bdf7-b168ffbcc2fa.png)
    
