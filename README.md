@@ -88,3 +88,37 @@ roslaunch sensor sensor.launch
 * LiDAR & Camera Calibration 방법 아래 링크 참고   
   https://github.com/ehong-tl/camera_2d_lidar_calibration   
 
+
+**(2022-09-16)**   
+
+* 프페임 제작 완료   
+  > 카메라 높이 : 16.3 cm   
+  > 라이다 높이 : 19.0 cm   
+
+* 카메라 & 라이다 캘리브레이션 작업 완료   
+  https://github.com/ehong-tl/camera_2d_lidar_calibration/blob/master/how%20to%20use.pdf
+   ```
+   Camera parameters
+   Lens = fisheye
+   K =
+   [[1.01633497e+03 0.00000000e+00 6.86163990e+02]
+    [0.00000000e+00 1.01039193e+03 3.87096590e+02]
+    [0.00000000e+00 0.00000000e+00 1.00000000e+00]]
+   D =
+   [ 0.067985 -0.106608  0.00214   0.00214 ]
+   Transform from camera to laser
+   T = 
+   [[-0.03770139]
+    [-0.0727662 ]
+    [ 0.10565133]]
+   R = 
+   [[-0.36905727 -0.92912161  0.02301676]
+    [-0.16116653  0.03958803 -0.98613292]
+    [ 0.91532622 -0.36764905 -0.16435356]]
+   Quaternion = 
+   -0.356 -0.435i +0.627j -0.540k
+   RMSE in pixel = 46.982641
+   Result output format: qx qy qz qw tx ty tz
+   ```
+
+
