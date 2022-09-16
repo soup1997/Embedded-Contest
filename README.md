@@ -6,11 +6,14 @@
 
 ### 명령어   
 
-Sensor 실행 (Camera, LiDAR)
+Sensor 실행 (Camera, LiDAR)   
 ```
 roslaunch sensor sensor.launch
 ```
-
+Camera & LiDAR Calibration 결과 실행   
+```
+roslaunch camera_2d_lidar_calibration reprojection.launch
+```
 
 ---
 
@@ -96,7 +99,13 @@ roslaunch sensor sensor.launch
   > 라이다 높이 : 19.0 cm   
 
 * 카메라 & 라이다 캘리브레이션 작업 완료   
-  https://github.com/ehong-tl/camera_2d_lidar_calibration/blob/master/how%20to%20use.pdf
+  참고 링크   
+  https://github.com/ehong-tl/camera_2d_lidar_calibration/blob/master/how%20to%20use.pdf   
+  
+  - 캘리브레이션 진행 화면
+  ![Screenshot from 2022-09-16 17-13-55](https://user-images.githubusercontent.com/96249554/190599502-17fb2c1d-2463-49e5-85fc-4a32be8ffcd8.png)
+
+     
    ```
    Camera parameters
    Lens = fisheye
@@ -120,5 +129,7 @@ roslaunch sensor sensor.launch
    RMSE in pixel = 46.982641
    Result output format: qx qy qz qw tx ty tz
    ```
+   - 캘리브레이션 결과
+   ![Screenshot from 2022-09-16 17-54-52](https://user-images.githubusercontent.com/96249554/190599124-ed285672-170b-428b-bdf7-b168ffbcc2fa.png)
 
 
