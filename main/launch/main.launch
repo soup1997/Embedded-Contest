@@ -1,0 +1,8 @@
+<?xml_version="1.0" encoding="utf-8"?>
+
+<launch>
+
+<include file="$(find sensor)/launch/sensor.launch" />
+<node pkg="main" type="main.py" name="main" output="screen"/>
+
+</launch>
