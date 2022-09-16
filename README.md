@@ -1,6 +1,7 @@
 # Embedded-System-Contest
    
-2022 한국공학대학교 전자공학부 임베디드시스템 경진대회
+2022 한국공학대학교 전자공학부 임베디드시스템 경진대회   
+
 ![KakaoTalk_20220916_175417917_01](https://user-images.githubusercontent.com/86957779/190599690-af84a95d-373e-4e92-aee9-21f6c8fdbec0.jpg)
 ![KakaoTalk_20220916_175417917](https://user-images.githubusercontent.com/86957779/190599709-ffaa85e7-c243-48ac-99f2-f410f173140a.jpg)
 ---
@@ -95,7 +96,7 @@ roslaunch camera_2d_lidar_calibration reprojection.launch
 
 **(2022-09-16)**   
 
-* 프페임 제작 완료   
+* 프레임 제작 완료   
   > 카메라 높이 : 16.3 cm   
   > 라이다 높이 : 19.0 cm   
 
