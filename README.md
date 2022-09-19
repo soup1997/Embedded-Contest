@@ -146,3 +146,9 @@ roslaunch camera_2d_lidar_calibration reprojection.launch
    ![화면 캡처 2022-09-16 184804](https://user-images.githubusercontent.com/86957779/190611424-0b1d273f-22ac-4f83-b6ed-f68f8bde11f6.png)
 
 
+**(2022-09-20)**
+
+* 기존 코드 수정 완료, 클러스터링 좌표 수정 완료
+* 서보모터 동작 확인, 무게로 인한 DC모터 구동 실패
+* bag 파일 녹화 후 시연 때 재생 예정
+* 작품 설명서 제작 예정, 라이다-카메라 센서 퓨전 시각화 적용 예정
