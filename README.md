@@ -152,3 +152,4 @@ roslaunch camera_2d_lidar_calibration reprojection.launch
 * 서보모터 동작 확인, 무게로 인한 DC모터 구동 실패
 * bag 파일 녹화 후 시연 때 재생 예정
 * 작품 설명서 제작 예정, 라이다-카메라 센서 퓨전 시각화 적용 예정
+* 배터리 충전해 놓을것!!
