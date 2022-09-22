@@ -159,3 +159,6 @@ roslaunch camera_2d_lidar_calibration reprojection.launch
 **(2022-09-20 추가)**
 
 * 카메라 위치 재조정 후 데이터 재수집, 캘리브레이션 결과 -> 위에 덮어 씀   
+* 작품 설명서 제작 완료
+* 트랙 bag 녹화 예정
+* 속도제어 코드 
