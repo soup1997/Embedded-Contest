@@ -10,8 +10,8 @@ class Stanley:
     def __init__(self):
         self.k = 1.3  # gain 값
     
-    def calc_x(self, middle_point, centerx):
-        x = (centerx - middle_point) * 0.0021875
+    def calc_x(self, middle_point, centerx=320):
+        x = (centerx - middle_point) * 0.001
         return x
 
     def control(self, middle_point, centerx, u, curvature_angle):

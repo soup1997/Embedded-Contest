@@ -8,6 +8,7 @@ from sklearn.cluster import DBSCAN
 import rospy
 from time import time
 from ackermann_msgs.msg import AckermannDriveStamped
+from Detector.reprojection import RP
 ######################
 
 class Clustering:
@@ -16,20 +17,20 @@ class Clustering:
         self.rate = rospy.Rate(30)  # 30Hz로 토픽 발행
         self.motor_pub = rospy.Publisher('ackermann_cmd', AckermannDriveStamped, queue_size=30)  # motor msg publisher
         self.motor_msg = AckermannDriveStamped()  # xycar 제어를 위한 속도, 조향각 정보를 담고 있는 xycar_motor 호출
-        self.motor_msg.speed = 5
-        self.motor_msg.angle = 0
+        self.motor_msg.drive.speed = 5
+        self.motor_msg.drive.steering_angle = 0
         ###################
-        epsilon = 0.115   # 중심점 기준 반경 길이 (meter)
-        min_sample = 20  # 클러스터로 묶기위한 최소 포인트 갯수, 이보다 작으면 노이즈로 간주
+        epsilon = 0.2   # 중심점 기준 반경 길이 (meter)
+        min_sample = 10  # 클러스터로 묶기위한 최소 포인트 갯수, 이보다 작으면 노이즈로 간주
 
-        self.range1_sin = np.sin(np.radians(np.arange(0, 90, 0.5)))
-        self.range1_cos = np.cos(np.radians(np.arange(0, 90, 0.5)))
+        self.range1_sin = np.sin(np.radians(np.linspace(90, 180, 126)))     # 좌 = 90 ~ 180
+        self.range1_cos = np.cos(np.radians(np.linspace(90, 180, 126)))
 
-        self.range2_sin = np.sin(np.radians(np.arange(90, 180, 0.5)))
-        self.range2_cos = np.cos(np.radians(np.arange(90, 180, 0.5)))
+        self.range2_sin = np.sin(np.radians(np.linspace(180, 270, 126)))    # 우 = 180 ~ 270
+        self.range2_cos = np.cos(np.radians(np.linspace(180, 270, 126)))
 
         self.model = DBSCAN(eps=epsilon, min_samples=min_sample, algorithm='ball_tree', leaf_size=20)
-
+        self.rp = RP()
         #################
         self.steering_angle = 0
 
@@ -43,15 +44,14 @@ class Clustering:
         #################
 
     def coordinate_transform(self, distance):
-        distance = distance[len(distance)// 2:]
 
-        # shape: (180, 1)
-        coordinate_x1 = np.array([distance[: 180] * self.range1_sin]).reshape(-1, 1)
-        coordinate_y1 = np.array([distance[: 180] * self.range1_cos]).reshape(-1, 1)
+        # shape: (180, 1)   270도 = 378 (좌 = 90 ~ 180) # 126:252
+        coordinate_x1 = np.array([distance[126:252] * self.range1_sin]).reshape(-1, 1)
+        coordinate_y1 = np.array([distance[126:252] * self.range1_cos]).reshape(-1, 1)
 
-        # shape: (180, 1)
-        coordinate_x2 = np.array([distance[180 :] * self.range2_sin]).reshape(-1, 1)
-        coordinate_y2 = np.array([distance[180 :] * self.range2_cos]).reshape(-1, 1)
+        # shape: (180, 1)   90도 = 126  (우 = 180 ~ 270)    # 252:378
+        coordinate_x2 = np.array([distance[252:378] * self.range2_sin]).reshape(-1, 1)
+        coordinate_y2 = np.array([distance[252:378] * self.range2_cos]).reshape(-1, 1)
 
         # shape: (360, 1)
         coordinate_x = np.concatenate((coordinate_x1, coordinate_x2), axis=0)
@@ -67,7 +67,7 @@ class Clustering:
         data[np.isposinf(data)] = np.NaN
         data[np.isneginf(data)] = np.NaN
         
-        # x좌표가 0.25m 이하인 점의 인덱스를 찾아 그 부분만 살림
+        # x좌표가 0.30m 이하인 점의 인덱스를 찾아 그 부분만 살림
         condition = np.where(np.abs(data[:, 1]) <= 0.30)
         data = data[condition, :].reshape(-1, 2)
         return data
@@ -115,13 +115,14 @@ class Clustering:
         else:
             pass
 
-        return angle
+        return -angle
 
-    def process(self, msg):
-        coordinate = self.coordinate_transform(msg)
+    def process(self, msg, img):
+        coordinate = self.coordinate_transform(msg.ranges)
         processed_data = self.value_handling(coordinate)
         centroid_list = self.clustering(processed_data)
-            
+
+        self.rp.main(msg, img)
         self.steering_angle = self.avoidance(centroid_list)
 
         return self.steering_angle

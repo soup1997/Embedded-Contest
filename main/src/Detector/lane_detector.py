@@ -23,7 +23,7 @@ class LaneDetector:
         # 슬라이딩 윈도우 출력 창 가로 크기 : WIDTH + 2*window_margin
         self.window_margin = 24
         self.xycar_length = 0.35  # 0.35 meter
-        self.leftx_mid, self.rightx_mid = self.camera.WIDTH // 7, self.camera.WIDTH * 6 // 7  # 슬라이딩 윈도우 기준점 초기 좌표
+        self.leftx_mid, self.rightx_mid = self.camera.WIDTH // 6, self.camera.WIDTH * 5 // 6  # 슬라이딩 윈도우 기준점 초기 좌표
         self.leftx_base, self.rightx_base = self.leftx_mid, self.rightx_mid  # 슬라이딩 윈도우 이전값
 
         self.left_a, self.left_b, self.left_c = [0], [0], [self.leftx_mid]  # 왼쪽 차선으로부터 나온 2차 곡선 방정식의 계수를 저장하기 위한 변수
@@ -41,53 +41,7 @@ class LaneDetector:
         # 양쪽 차선 인식 기준 x값 평균을 저장하는 변수, 이전 조향각을 저장하기위한 변수
         self.avg_middle, self.steering_memory = 0.0, 0.0
 
-        self.motor_angle = 0
 
-        # median filter
-        self.centerx = 320
-        self.center_mid = 320
-        self.center_mid_list = []
-
-    # ========================================
-    # 차선 roi
-    # ========================================
-    def lane_roi(self, img, centerx):
-        mask = np.ones((480, 640), dtype=np.uint8)
-        # 좌하, 좌상, 우상, 우하
-        vertices = np.array([[(centerx - 100, self.camera.HEIGHT), (centerx - 100, 224),
-                                    (centerx +100, 224), (centerx + 100, self.camera.HEIGHT)]],
-                                   dtype=np.int32)
-
-        # vertices2 = np.array([[(0, 70), (0, 0),    
-        #                             (200, 0), (200, 70)]],
-        #                            dtype=np.int32)
-
-        mask = cv2.fillPoly(mask,vertices, 0)
-        # mask = cv2.fillPoly(mask,vertices2, 0)
-        lane_img = cv2.bitwise_and(img, mask)
-        return lane_img 
-
-    # ====================
-    # 중간 차선 인식을 위한 메디안 필터
-    # ====================
-    def median_filter(self, data, arr_size=4):
-        # 가운데 차선인식 안됐을경우 center_mid로 대체
-        if np.isnan(data):
-            data = self.center_mid
-
-        if len(self.center_mid_list) >= arr_size:
-            self.center_mid_list.pop(0)
-        
-        else:
-            self.center_mid_list.append(data)
-        
-        filtered_center = np.median(self.center_mid_list)
-
-        return filtered_center
-
-    def add_weighted(self, data1, data2):
-        weight1, weight2 = 0.70, 0.30
-        return int((weight1 * data1) + (weight2 * data2))
     # ========================================
     # 슬라이딩 윈도우
     # ====================
@@ -109,7 +63,7 @@ class LaneDetector:
     # right_lane_detected : 오른쪽 차선 인식 여부
     #
     # ========================================
-    def sliding_window(self, img, nwindows=12, margin=45, minpix=45, maxpix=300, draw_windows=False):
+    def sliding_window(self, img, nwindows=5, margin=45, minpix=45, draw_windows=False):
         # 크기 3의 비어있는 배열 생성
         left_fit_ = np.empty(3)
         right_fit_ = np.empty(3)
@@ -139,7 +93,6 @@ class LaneDetector:
         # 이를 이용해서 조사창 위치의 변화량을 파악
         # 초기값으로는 현재 기준 좌표를 넣어줌
         leftx_past = leftx_current
-        leftx_past2 = leftx_past
         rightx_past = rightx_current
         rightx_past2 = rightx_past
 
@@ -161,8 +114,8 @@ class LaneDetector:
             # 양쪽 차선의 조사창의 너비를 현재 좌표로부터 margin만큼 양 옆으로 키움
             win_xleft_low = int(leftx_current - margin)
             win_xleft_high = int(leftx_current + margin)
-            win_xright_low = int(rightx_current - margin-5)
-            win_xright_high = int(rightx_current + margin+5)
+            win_xright_low = int(rightx_current - margin)
+            win_xright_high = int(rightx_current + margin)
 
             # 조사창 그리기
             if draw_windows == True:
@@ -182,96 +135,31 @@ class LaneDetector:
             right_lane_inds.append(good_right_inds)
 
             # 조사창 내부에서 0이 아닌 픽셀 개수가 기준치를 넘으면 해당 픽셀들의 인덱스 평균값(x좌표 평균)으로 다음 조사창의 위치(x좌표)를 결정
-            if maxpix > len(good_left_inds) > minpix:
+            if len(good_left_inds) > minpix:
                 leftx = nonzerox[good_left_inds]
                 leftx_current = int(np.mean(leftx))
-                try:
-                    ll_index = np.where(leftx < leftx_current)
-                    lr_index = np.where(leftx > leftx_current)
-
-                    llx = leftx[ll_index]
-                    lrx = leftx[lr_index]
-
-                    if len(llx) == 0:
-                        leftx_current = int(np.mean(lrx))
-                    
-                    elif len(lrx) == 0:
-                        leftx_current = int(np.mean(llx))
-
-                    elif len(llx) > len(lrx):
-                        data1 = int(np.mean(llx))
-                        data2 = int(np.mean(lrx))
-                        leftx_current = self.add_weighted(data1, data2)
-                    
-                    elif len(llx) < len(lrx):
-                        data1 = int(np.mean(lrx))
-                        data2 = int(np.mean(llx))
-                        leftx_current = self.add_weighted(data1, data2)
-                    
-                    else:
-                        pass
-                
-                except ValueError:
-                    pass
-
             
-            elif window > 2:
-                leftx_current += int(self.motor_angle) 
-            
-            if maxpix > len(good_right_inds) > minpix:
+            if len(good_right_inds) > minpix:
                 rightx = nonzerox[good_right_inds]
                 rightx_current = int(np.mean(rightx))
                 
-                try:
-                    rl_index = np.where(rightx < rightx_current)
-                    rr_index = np.where(rightx > rightx_current)
-                    rlx = rightx[rl_index]
-                    rrx = rightx[rr_index]
-
-                    if len(rlx) == 0:
-                        rightx_current = int(np.mean(rrx))
-                    
-                    elif len(rrx) == 0:
-                        rightx_current = int(np.mean(rlx))
-
-                    elif len(rlx) > len(rrx):
-                        data1 = int(np.mean(rlx))
-                        data2 = int(np.mean(rrx))
-                        rightx_current = self.add_weighted(data1, data2)
-                    
-                    elif len(rlx) < len(rrx):
-                        data1 = int(np.mean(rrx))
-                        data2 = int(np.mean(rlx))
-                        rightx_current = self.add_weighted(data1, data2)
-                    
-                    else:
-                        pass
-                
-                except ValueError:
-                    pass
-
-            # elif window >= 5:
-            #     rightx_current += int(self.motor_angle) // 2
-            
-            elif window >= 2:
-                rightx_current += int(self.motor_angle) // 3
 
             x_diff = rightx_current - leftx_current
 
             # 양쪽 차선 중 하나만 인식된 경우 반대편 차선에서 나타난 인덱스 변화량과 동일하게 인덱스 설정
             # 인식된 차선의 방향과 동일하게 그려짐
-            if (len(good_left_inds) < minpix) or len(good_left_inds) > maxpix:
-                if (len(good_right_inds) < minpix) or len(good_right_inds) > maxpix:
+            if len(good_left_inds) < minpix:
+                if len(good_right_inds) < minpix:
                     leftx_current = leftx_current + (rightx_past - rightx_past2)
                 else:
-                    if (x_diff < self.camera.WIDTH // 3 * 2):
-                        leftx_current = rightx_current - (self.camera.WIDTH // 3 * 2)
+                    if x_diff < self.camera.WIDTH // 2:
+                        leftx_current = rightx_current - (self.camera.WIDTH // 2)
                     else:
                         leftx_current = leftx_current + (rightx_current - rightx_past)
                         
-            elif len(good_right_inds) < minpix or len(good_right_inds) > maxpix:
-                if (x_diff < self.camera.WIDTH // 3 * 2):
-                    rightx_current = leftx_current + (self.camera.WIDTH // 3 * 2)
+            elif len(good_right_inds) < minpix:
+                if x_diff < self.camera.WIDTH // 2:
+                    rightx_current = leftx_current + (self.camera.WIDTH // 2)
                 else:
                     rightx_current = rightx_current + (leftx_current - leftx_past)
 
@@ -279,12 +167,12 @@ class LaneDetector:
             # 기준점의 위치가 고정되어 변화되는 차선을 따라가지 못하는 것을 방지하고,
             # 차선이 끊기거나 여러 개의 선이 나타날 때 큰 변화 없이 현재 인식중인 차선의 방향대로 따라가며 효과적인 차선 인식이 가능
                 # 왼쪽 차선의 기준점이 중앙 기준 우측으로 넘어가지 않도록 제한
-            if leftx_current > (midpoint - 150):
-                leftx_current = midpoint - 150
+            if leftx_current > midpoint:
+                leftx_current = midpoint
 
             # 오른쪽 차선의 기준점이 중앙 기준 좌측으로 넘어가지 않도록 제한
-            if rightx_current < (midpoint - 70):
-                rightx_current = midpoint - 70
+            if rightx_current < midpoint:
+                rightx_current = midpoint
 
             if window == 0:
                 # 왼쪽 차선의 기준점이 왼쪽 화면 밖으로 나가지 않도록 제한
@@ -299,21 +187,6 @@ class LaneDetector:
                 self.leftx_base = leftx_current                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
                 self.rightx_base = rightx_current
             
-            if window == 6:
-                win_xcenter_low = self.center_mid - margin - 20
-                win_xcenter_high = self.center_mid + margin + 20
-
-                self.center_mid = (leftx_current + rightx_current) // 2
-
-                center_lane_inds = ((nonzeroy >= win_y_low) & (nonzeroy < win_y_high)
-                              & (nonzerox >= win_xcenter_low) & (nonzerox < win_xcenter_high)).nonzero()[0]
-
-                # 조사창 그리기
-                if draw_windows == True:
-                    # 가운데 차선
-                    cv2.rectangle(out_img, (win_xcenter_low, win_y_low), (win_xcenter_high, win_y_high), (100, 100, 255), 3)
-            
-            
 
             # 슬라이딩 윈도우 중앙 좌표 값 저장
             left_wins_x.append(leftx_current)
@@ -321,7 +194,6 @@ class LaneDetector:
 
             # 현재 인덱스 값을 이전 값으로 저장
             # 한쪽 차선이 인식되지 않은 경우 인식된 차선을 따라가기 위해 사용되는 변수
-            leftx_past2 = leftx_past
             leftx_past = leftx_current
             rightx_past2 = rightx_past
             rightx_past = rightx_current
@@ -338,14 +210,6 @@ class LaneDetector:
         rightx = nonzerox[right_lane_inds]
         righty = nonzeroy[right_lane_inds]
 
-
-        # ==================
-        # 가운데 차선 좌표 가져오기
-        self.centerx = np.mean(nonzerox[center_lane_inds])
-        self.centerx = self.median_filter(self.centerx)
-        if draw_windows:
-            cv2.circle(out_img, (int(self.centerx), 208), 3, (0, 255, 255), 5)
-        # ==================
 
         # 차선으로 인식된 픽셀 수가 일정치 이상일 경우에만 차선이 인식된 것으로 판단
         ### 왼쪽 차선으로 인식된 좌표가 1000개 미만이라면 False, 이상이라면 True
@@ -449,8 +313,8 @@ class LaneDetector:
 
             # print("middle_distance: {}".format(middle_dist))
 
-            # 640 pixel = 1.4m  ->  1 pixel = 0.0021875m
-            radius = ((H / 2) + (W ** 2) / (8 * H)) * 0.0021875
+            # 640 pixel = 0.64m  ->  1 pixel = 0.001m
+            radius = ((H / 2) + (W ** 2) / (8 * H)) * 0.001
             steering_angle = math.atan(self.xycar_length / radius) * (180 / math.pi)
 
             # 2차 곡선 기울기 계수 구하기
@@ -492,18 +356,17 @@ class LaneDetector:
     # ========================================
     # Main 함수
     # ========================================
-    def process(self, origin_img, angle):
-        self.motor_angle = angle
+    def process(self, origin_img):
+        origin_img = cv2.resize(origin_img, (640,480), cv2.INTER_LINEAR)
         img = self.camera.pre_processing(origin_img)
-        # img = self.lane_roi(img, self.centerx)
-        sliding_img, left_fitx, right_fitx, left_lane_detected, right_lane_detected = self.sliding_window(img, draw_windows=False)  # 슬라이딩 윈도우로 곡선 차선 인식
+        sliding_img, left_fitx, right_fitx, left_lane_detected, right_lane_detected = self.sliding_window(img, draw_windows=True)  # 슬라이딩 윈도우로 곡선 차선 인식
 
-        path_x, path_y = self.draw_path(sliding_img, left_fitx, right_fitx, draw_windows=False)
+        path_x, path_y = self.draw_path(sliding_img, left_fitx, right_fitx, draw_windows=True)
         curvature_angle = self.get_angle(path_x, path_y, left_lane_detected, right_lane_detected)
         
-        # sliding_result_img = self.inv_perspective_transform(sliding_img) # 주석처리
-        # combined_img = self.combine_img(origin_img, sliding_result_img) # 주석 처리
+        sliding_result_img = self.inv_perspective_transform(sliding_img) # 주석처리
+        combined_img = self.combine_img(origin_img, sliding_result_img) # 주석 처리
         # cv2.imshow('sliding_canny', sliding_img) # 주석처리
-        # cv2.imshow('CAM View', combined_img) # 주석처리
-
+        cv2.putText(combined_img, 'Angle: {}'.format(int(curvature_angle * 2.5)), (0, 50), 1, 5, (255, 255, 255), 3)
+        cv2.imshow('Lane', combined_img) # 주석처리
         return curvature_angle, left_lane_detected, right_lane_detected

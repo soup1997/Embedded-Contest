@@ -1,8 +1,14 @@
-<?xml_version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <launch>
 
+<!-- Sensor -->
 <include file="$(find sensor)/launch/sensor.launch" />
+
+<!-- Lane Bag File -->
+<node pkg="rosbag" type="play" name="rosbag" args="-l $(find main)/test.bag"/>
+
+<!-- main -->
 <node pkg="main" type="main.py" name="main" output="screen"/>
 
 </launch>

@@ -25,48 +25,46 @@ class HP:
         self.stanley = Stanley()
         self.start_time = time()
 
-    def calc_speed(self, angle):  # 최저속도(min): 5.0, 최고속도: 15.0(50.0)
+    def calc_speed(self, angle):  # 최저속도(min): 10.0, 최고속도: 50.0(50.0)
         if angle > 0:
-            slope = -0.20
+            slope = -0.8
 
         elif angle < 0:
-            slope = 0.20
+            slope = 0.8
 
         else:
             slope = 0.0
-
-        speed = (slope * angle) + 15.0
+        # 주행 시작하자마자 조향틀어지는 문제 해결 (2.0초 동안은 speed=10, angle = 0으로 강제 명령)
+        if time() - self.start_time <= 2.0:
+            speed = 0
+            steering_angle = 0
+        speed = (slope * angle) + 50.0
 
         return speed
 
     def control(self):
         try:
-            steering_angle = self.obstacle_detector.process(self.sensor.lidar_filtered)
+            steering_angle = self.obstacle_detector.process(self.sensor.lidar_filtered, self.sensor.real_cam)
             left_lane_detected = False
             right_lane_detected = False
         
         except ValueError:
-            curvature_angle, left_lane_detected, right_lane_detected = self.lane_detector.process(self.sensor.cam, self.motor_msg.angle)
+            curvature_angle, left_lane_detected, right_lane_detected = self.lane_detector.process(self.sensor.cam)
 
-            steering_angle = self.stanley.control(self.lane_detector.avg_middle, self.lane_detector.centerx, self.sensor.speed, curvature_angle)
+            steering_angle = self.stanley.control(self.lane_detector.avg_middle, 320 , 1, curvature_angle)
 
         steering_angle *= 2.5 # 모터로 보내는 조향각
         speed = self.calc_speed(steering_angle)
-
-        # 주행 시작하자마자 조향틀어지는 문제 해결 (2.0초 동안은 speed=10, angle = 0으로 강제 명령)
-        if time() - self.start_time <= 2.0:
-            speed = 10
-            steering_angle = 0
         
         # 양쪽 차선 하나라도 검출 안되면 속도 5로 고정
         if not(left_lane_detected) or not(right_lane_detected):
-            self.motor_msg.speed = 5
+            self.motor_msg.drive.speed = 10
 
         print("Current motor speed: {}, Current motor angle: {}".format(
-            self.motor_msg.speed, self.motor_msg.angle))
+            self.motor_msg.drive.speed, self.motor_msg.drive.steering_angle))
             
-        self.motor_msg.speed = int(speed)
-        self.motor_msg.angle = int(steering_angle)
+        self.motor_msg.drive.speed = int(speed)
+        self.motor_msg.drive.steering_angle = int(steering_angle)
 
         self.motor_pub.publish(self.motor_msg)
         self.rate.sleep()
