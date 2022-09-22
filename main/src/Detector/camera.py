@@ -10,11 +10,16 @@ class Camera:
 
         # ====================
         # ROI - array 순서 : [좌하, 좌상, 우상, 우하]
-
+        
+        # 실제 카메라를 위한 roi
         vertices = np.array([(0, 330), (self.WIDTH // 2 - 160, 220),
                                     (self.WIDTH // 2 + 160, 220), (self.WIDTH, 330)],
                                    dtype=np.int32)
-
+        
+        # project_video.mp4 (test.bag)을 위한 roi
+        vertices = np.array([(150, 410), (self.WIDTH // 2 - 60, 330),
+                             (self.WIDTH // 2 + 60, 330), (self.WIDTH-150, 410)],
+                            dtype=np.int32)
 
         # Bird's eye View 변환을 위한 src, dst point 설정 (src 좌표에서 dst 좌표로 투시 변환)
         self.points_src = np.float32(list(vertices))
@@ -31,11 +36,12 @@ class Camera:
     # ========================================
     def histogram_equalization(self, img):
         return cv2.equalizeHist(img)
+    
    
     # ========================================
     # 반사광 제거
     # ========================================
-    def glare_removal(self, img, radius=45):
+    def glare_removal(self, img, radius=35):
         img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
         l_channel = img_lab[:, :, 0] # 밝기를 나타내는 채널
         # l_channel = self.histogram_equalization(l_channel)    # 평활화를 함으로써 원본 영상의 L 채널 값과 크게 달라질 수 있음
@@ -56,17 +62,10 @@ class Camera:
     # ========================================
     def canny_edge(self, img):
         # img = cv2.Canny(img, 50, 120)
-        img = cv2.Canny(img, 25, 60)       # project_video.mp4 사용 시 가장 적합
+        img = cv2.Canny(img, 25, 60)       # project_video.mp4(test.bag) 사용 시 가장 적합
         return img
     
-    # ========================================
-    # 세로선 검출 (Sobel Edge Detection)
-    # ========================================    
-    def sobel_edge(self, img):
-        img = cv2.Sobel(img, cv2.CV_8U, 1, 0, 3)
-        return img
-
-
+    
     # ========================================
     # 흑백 영상 변환
     # ========================================
@@ -80,13 +79,6 @@ class Camera:
     def gaussian_blur(self, img):
         return cv2.GaussianBlur(img, (3, 3), 0)  # 노이즈 제거(솔트 & 페퍼 노이즈) 이미지 반환
 
-    
-    # ========================================
-    # 모폴로지 닫힘 연산
-    # ========================================
-    def mophology_close(self, img):
-        return cv2.morphologyEx(img, cv2.MORPH_CLOSE, None)
-
 
     # ========================================
     # Bird's eye View 변환
@@ -94,11 +86,13 @@ class Camera:
     def perspective_transform(self, img):  # birds eye view
         result_img = cv2.warpPerspective(img, self.transform_matrix, (self.WIDTH, self.HEIGHT))
         return result_img  # 변환한 이미지 반환
+    
 
     # ========================================
     # 영상 전처리
     # ========================================
-    def pre_processing(self, img, mode=1):
+    def pre_processing(self, img):
+        img = cv2.resize(img, (640, 480), cv2.INTER_LINEAR)
         img = self.glare_removal(img)
         img = self.gray_scale(img)
         img = self.gaussian_blur(img)
