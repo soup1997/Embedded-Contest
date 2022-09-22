@@ -38,11 +38,15 @@ class Camera:
     def glare_removal(self, img, radius=45):
         img_lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
         l_channel = img_lab[:, :, 0] # 밝기를 나타내는 채널
-        l_channel = self.histogram_equalization(l_channel)
+        # l_channel = self.histogram_equalization(l_channel)    # 평활화를 함으로써 원본 영상의 L 채널 값과 크게 달라질 수 있음
+                                                                # 때문에 이는 제외하고 메디안 필터만 적용하는 것으로 함
         l_channel = cv2.medianBlur(l_channel, radius) # 메디안 필터링 (물체는 필요없고, 실제 조명과 가까워지게 블러링 강하게 적용)
         inverse_l_channel = cv2.bitwise_not(l_channel) # 빛 반사가 높을수록 어두워지고, 빛반사가 없을수록 밝아짐(not연산자)
-        img_lab[:, :, 0] += inverse_l_channel # 원본 L 채널과 합성
-        img_lab[:, :, 0] = img_lab[:, :, 0] // 2
+        
+        img_lab[:, :, 0] = img_lab[:, :, 0] // 2    # 원본 L 채널 값 1/2
+        img_lab[:, :, 0] += inverse_l_channel       # 원본 L 채널과 합침 (원본 : 역변환 = 1 : 2)
+        img_lab[:, :, 0] = img_lab[:, :, 0] // 2    # 합친 후 값이 높아 밝은 영상이 나오므로 한번 더 1/2
+        
         img = cv2.cvtColor(img_lab, cv2.COLOR_LAB2BGR) # BGR로 변경
         return img
     
@@ -51,7 +55,8 @@ class Camera:
     # 윤곽선 검출
     # ========================================
     def canny_edge(self, img):
-        img = cv2.Canny(img, 50, 120)
+        # img = cv2.Canny(img, 50, 120)
+        img = cv2.Canny(img, 25, 60)       # project_video.mp4 사용 시 가장 적합
         return img
     
     # ========================================
