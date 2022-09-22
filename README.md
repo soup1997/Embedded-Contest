@@ -14,9 +14,9 @@ Sensor 실행 (Camera, LiDAR)
 ```
 roslaunch sensor sensor.launch
 ```
-Camera & LiDAR Calibration 결과 실행   
+Lane Detection, Obstacle Avoidance, LiDAR-Camera Calibration, Motor Control 실행
 ```
-roslaunch camera_2d_lidar_calibration reprojection.launch
+roslaunch main main.launch
 ```
 
 ---
