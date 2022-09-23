@@ -100,22 +100,20 @@ class Clustering:
         centroid_list = centroid_list[np.argmin(distance_list)][::-1]
 
         angle = (math.atan(centroid_list[1] / centroid_list[0]) * (180 / math.pi))      
-        
+
         ### 장애물과의 각도와 반대 방향으로 동일한 크기의 각도 결정
         if angle < 0.0:
-            angle += 90
-            if angle >= 20.0: # 각도 범위 제한
-                angle = 20.0
-        
-        elif angle > 0.0:
-            angle -= 90
             if angle <= -20.0: # 각도 범위 제한
                 angle = -20.0
+        
+        elif angle > 0.0:
+            if angle >= 20.0: # 각도 범위 제한
+                angle = 20.0
         
         else:
             pass
 
-        return -angle
+        return angle
 
     def process(self, msg, img):
         coordinate = self.coordinate_transform(msg.ranges)

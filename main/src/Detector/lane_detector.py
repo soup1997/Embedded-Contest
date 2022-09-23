@@ -364,9 +364,12 @@ class LaneDetector:
         path_x, path_y = self.draw_path(sliding_img, left_fitx, right_fitx, draw_windows=True)
         curvature_angle = self.get_angle(path_x, path_y, left_lane_detected, right_lane_detected)
         
-        sliding_result_img = self.inv_perspective_transform(sliding_img) # 주석처리
-        combined_img = self.combine_img(origin_img, sliding_result_img) # 주석 처리
-        # cv2.imshow('sliding_canny', sliding_img) # 주석처리
+        # 주석 처리
+        sliding_result_img = self.inv_perspective_transform(sliding_img)
+        combined_img = self.combine_img(origin_img, sliding_result_img)
+        # cv2.imshow('sliding_canny', sliding_img)
         cv2.putText(combined_img, 'Angle: {}'.format(int(curvature_angle * 2.5)), (0, 50), 1, 5, (255, 255, 255), 3)
-        cv2.imshow('Lane', combined_img) # 주석처리
-        return curvature_angle, left_lane_detected, right_lane_detected
+        cv2.imshow('Lane', combined_img)
+        # 주석 처리
+
+        return curvature_angle
