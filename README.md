@@ -14,7 +14,7 @@ Sensor 실행 (Camera, LiDAR)
 ```
 roslaunch sensor sensor.launch
 ```
-Lane Detection, Obstacle Avoidance, LiDAR-Camera Calibration, Motor Control 실행
+Sensor, Lane Detection, Obstacle Avoidance, LiDAR-Camera Calibration, Motor Control 실행
 ```
 roslaunch main main.launch
 ```
@@ -173,7 +173,4 @@ roslaunch main main.launch
 
 **(2022-09-23)**   
 * 장애물 위치에 따른 각도 조정 및 정면에 위치 시 속도 0   
-* 완료   
-
----
-# 작품 설명서 A3 출력 후 우드락 부착 필요
+* 완료!   
