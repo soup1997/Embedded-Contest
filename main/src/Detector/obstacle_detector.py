@@ -97,6 +97,7 @@ class Clustering:
         distance_list = [np.linalg.norm(centroid) for centroid in centroid_list]
         
         # 가장 거리가 가까운 점이 회피 대상이라 가정, x, y좌표가 반대로 출력되므로 역 인덱싱 적용
+        dist = min(distance_list)
         centroid_list = centroid_list[np.argmin(distance_list)][::-1]
 
         angle = (math.atan(centroid_list[1] / centroid_list[0]) * (180 / math.pi))      
@@ -113,7 +114,7 @@ class Clustering:
         else:
             pass
 
-        return angle
+        return angle, dist
 
     def process(self, msg, img):
         coordinate = self.coordinate_transform(msg.ranges)
@@ -121,6 +122,6 @@ class Clustering:
         centroid_list = self.clustering(processed_data)
 
         self.rp.main(msg, img)
-        self.steering_angle = self.avoidance(centroid_list)
+        self.steering_angle, dist = self.avoidance(centroid_list)
 
-        return self.steering_angle
+        return self.steering_angle, dist

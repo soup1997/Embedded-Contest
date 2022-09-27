@@ -39,10 +39,14 @@ class HP:
 
         return speed
 
+    def dist_speed(self, dist): # 거리에 따른 속도 조절
+        speed = 75.0 * (dist -  0.1) + 5.0
+        return speed
+    
+
     def control(self):
         try:
-            steering_angle = self.obstacle_detector.process(self.sensor.lidar_filtered, self.sensor.real_cam)
-            
+            steering_angle, dist = self.obstacle_detector.process(self.sensor.lidar_filtered, self.sensor.real_cam)
             # 장애물이 정면에 있으면 정지
             if abs(steering_angle) < 3:
                 steering_angle = 0
@@ -50,11 +54,10 @@ class HP:
 
             else:
                 steering_angle *= 2.5
-                speed = 10
+                speed = self.dist_speed(dist)
         
         except ValueError:
             curvature_angle = self.lane_detector.process(self.sensor.cam)
-
             steering_angle = self.stanley.control(self.lane_detector.avg_middle, 320 , 1, curvature_angle)
             steering_angle *= 2.5 # 모터로 보내는 조향각
             speed = self.calc_speed(steering_angle)

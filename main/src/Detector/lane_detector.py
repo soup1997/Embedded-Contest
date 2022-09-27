@@ -22,7 +22,7 @@ class LaneDetector:
         # 슬라이딩 윈도우 출력 창 크기 좌우 확장 값으로, 좌우로 window_margin 만큼 커짐
         # 슬라이딩 윈도우 출력 창 가로 크기 : WIDTH + 2*window_margin
         self.window_margin = 24
-        self.xycar_length = 0.35  # 0.35 meter
+        self.car_length = 2.5  # 0.35 meter
         self.leftx_mid, self.rightx_mid = self.camera.WIDTH // 6, self.camera.WIDTH * 5 // 6  # 슬라이딩 윈도우 기준점 초기 좌표
         self.leftx_base, self.rightx_base = self.leftx_mid, self.rightx_mid  # 슬라이딩 윈도우 이전값
 
@@ -231,7 +231,6 @@ class LaneDetector:
 
             # 왼쪽 차선 계수
             self.left_a.append(left_fit[0])
-            self.left_b.append(left_fit[1])
             self.left_c.append(left_fit[2])
 
         # 오른쪽 차선이 인식된 경우
@@ -314,8 +313,8 @@ class LaneDetector:
             # print("middle_distance: {}".format(middle_dist))
 
             # 640 pixel = 0.64m  ->  1 pixel = 0.001m
-            radius = ((H / 2) + (W ** 2) / (8 * H)) * 0.001
-            steering_angle = math.atan(self.xycar_length / radius) * (180 / math.pi)
+            radius = ((H / 2) + (W ** 2) / (8 * H)) * 0.0084
+            steering_angle = math.atan(self.car_length / radius) * (180 / math.pi)
 
             # 2차 곡선 기울기 계수 구하기
             direction = np.polyfit(path[:, 1], path[:, 0], deg = 2)[0]
@@ -368,7 +367,7 @@ class LaneDetector:
         sliding_result_img = self.inv_perspective_transform(sliding_img)
         combined_img = self.combine_img(origin_img, sliding_result_img)
         # cv2.imshow('sliding_canny', sliding_img)
-        cv2.putText(combined_img, 'Angle: {}'.format(int(curvature_angle * 2.5)), (0, 50), 1, 5, (255, 255, 255), 3)
+        cv2.putText(combined_img, 'Angle: {}'.format(int(curvature_angle)), (0, 50), 1, 5, (255, 255, 255), 3)
         cv2.imshow('Lane', combined_img)
         # 주석 처리
 

@@ -11,14 +11,13 @@ class Camera:
         # ====================
         # ROI - array 순서 : [좌하, 좌상, 우상, 우하]
 
-        # 카메라를 위한 roi
-        vertices = np.array([(0, 330), (self.WIDTH // 2 - 160, 220),
-                                    (self.WIDTH // 2 + 160, 220), (self.WIDTH, 330)],
-                                   dtype=np.int32)
-
         # project_video.mp4 (test.bag)을 위한 roi
         vertices = np.array([(150, 410), (self.WIDTH // 2 - 60, 330),
                                     (self.WIDTH // 2 + 60, 330), (self.WIDTH-150, 410)],
+                                   dtype=np.int32)
+        
+        vertices = np.array([(210, 370), (self.WIDTH // 2 - 45, 310),
+                                    (self.WIDTH // 2 + 45, 310), (self.WIDTH-210, 370)],
                                    dtype=np.int32)
 
 

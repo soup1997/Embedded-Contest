@@ -86,5 +86,7 @@ class RP:
                 cv2.circle(img, (int(round(img_points[i][0])),int(round(img_points[i][1]))), 3, (0,255,0), 1)
             except OverflowError:
                 continue
+            except IndexError:
+                continue
 
         cv2.imshow('Obstacle', img)
