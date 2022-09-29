@@ -4,12 +4,10 @@
 import numpy as np
 import math
 from sklearn.cluster import DBSCAN
-######################
 import rospy
 from time import time
 from ackermann_msgs.msg import AckermannDriveStamped
 from Detector.reprojection import RP
-######################
 
 class Clustering:
     def __init__(self):
